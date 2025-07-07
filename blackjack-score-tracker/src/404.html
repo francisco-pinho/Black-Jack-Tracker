@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -23,7 +24,7 @@
             align-items: center;
             color: white;
         }
-        
+
         .error-container {
             text-align: center;
             max-width: 500px;
@@ -34,56 +35,56 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .error-icon {
             font-size: 6rem;
             margin-bottom: 1rem;
             color: #e74c3c;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         h1 {
             font-size: 4rem;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             color: #e74c3c;
         }
-        
+
         h2 {
             font-size: 2rem;
             margin: 1rem 0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
-        
+
         p {
             font-size: 1.2rem;
             margin: 1rem 0;
             opacity: 0.9;
             line-height: 1.6;
         }
-        
+
         .btn {
             display: inline-flex;
             align-items: center;
             gap: 10px;
             padding: 15px 25px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             text-decoration: none;
             border-radius: 8px;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             transition: all 0.3s ease;
             margin-top: 1.5rem;
             font-weight: 600;
             font-size: 1.1rem;
         }
-        
+
         .btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
-        
+
         .cards {
             display: flex;
             justify-content: center;
@@ -91,48 +92,56 @@
             margin: 1rem 0;
             font-size: 3rem;
         }
-        
+
         .card {
             animation: float 3s ease-in-out infinite;
         }
-        
+
         .card:nth-child(2) {
             animation-delay: 0.5s;
         }
-        
+
         .card:nth-child(3) {
             animation-delay: 1s;
         }
-        
+
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
-        
+
         @media (max-width: 768px) {
             .error-container {
                 padding: 1.5rem;
                 margin: 1rem;
             }
-            
+
             h1 {
                 font-size: 3rem;
             }
-            
+
             h2 {
                 font-size: 1.5rem;
             }
-            
+
             p {
                 font-size: 1rem;
             }
-            
+
             .error-icon {
                 font-size: 4rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="error-container">
         <div class="error-icon">
@@ -153,4 +162,5 @@
         </a>
     </div>
 </body>
+
 </html>

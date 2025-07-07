@@ -1,37 +1,37 @@
 {
-  "name": "blackjack-score-tracker",
-  "version": "1.0.0",
-  "description": "A comprehensive web application to track player scores and earnings in Blackjack games",
-  "main": "index.html",
-  "scripts": {
-    "start": "python -m http.server 8000 --directory blackjack-score-tracker/src",
-    "dev": "python -m http.server 8000 --directory blackjack-score-tracker/src",
-    "build": "echo 'Static site - no build needed'",
-    "deploy": "echo 'Ready for deployment'",
-    "test": "echo 'No tests specified'"
-  },
-  "keywords": [
-    "blackjack",
-    "score-tracker",
-    "gaming",
-    "web-app",
-    "casino",
-    "cards",
-    "multiplayer"
-  ],
-  "author": "Your Name",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/blackjack-score-tracker.git"
-  },
-  "homepage": "https://yourusername.github.io/blackjack-score-tracker",
-  "bugs": {
-    "url": "https://github.com/yourusername/blackjack-score-tracker/issues"
-  },
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "devDependencies": {},
-  "dependencies": {}
+    "name": "blackjack-score-tracker",
+    "version": "1.0.0",
+    "description": "A comprehensive web application to track player scores and earnings in Blackjack games",
+    "main": "index.html",
+    "scripts": {
+        "start": "python -m http.server 8000 --directory blackjack-score-tracker/src",
+        "dev": "python -m http.server 8000 --directory blackjack-score-tracker/src",
+        "build": "echo 'Static site - no build needed'",
+        "deploy": "echo 'Ready for deployment'",
+        "test": "echo 'No tests specified'"
+    },
+    "keywords": [
+        "blackjack",
+        "score-tracker",
+        "gaming",
+        "web-app",
+        "casino",
+        "cards",
+        "multiplayer"
+    ],
+    "author": "Your Name",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yourusername/blackjack-score-tracker.git"
+    },
+    "homepage": "https://yourusername.github.io/blackjack-score-tracker",
+    "bugs": {
+        "url": "https://github.com/yourusername/blackjack-score-tracker/issues"
+    },
+    "engines": {
+        "node": ">=14.0.0"
+    },
+    "devDependencies": {},
+    "dependencies": {}
 }

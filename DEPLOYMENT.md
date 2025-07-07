@@ -4,12 +4,15 @@
 
 ### Option 1: GitHub Pages (Recommended - Free & Easy)
 
-#### Prerequisites:
+#### Prerequisites
+
 - GitHub account
 - Git installed on your machine
 
-#### Steps:
+#### Steps
+
 1. **Create GitHub Repository:**
+
    ```bash
    # Navigate to your project folder
    cd c:\Users\franc\.vscode\Black-Jack-Tracker
@@ -36,6 +39,7 @@
    - Click "Create Repository"
 
 3. **Push to GitHub:**
+
    ```bash
    # Add remote origin (replace YOURUSERNAME with your GitHub username)
    git remote add origin https://github.com/YOURUSERNAME/blackjack-score-tracker.git
@@ -58,7 +62,8 @@
    - Your site will be available at:
    - `https://YOURUSERNAME.github.io/blackjack-score-tracker/blackjack-score-tracker/src/`
 
-#### Auto-Deployment:
+#### Auto-Deployment
+
 ✅ GitHub Actions workflow already configured  
 ✅ Automatic deployment on every push to main branch
 
@@ -66,7 +71,8 @@
 
 ### Option 2: Netlify (Alternative - Super Easy)
 
-#### Steps:
+#### Steps
+
 1. **Method A - Drag & Drop:**
    - Go to [netlify.com](https://netlify.com)
    - Sign up for free account
@@ -81,7 +87,8 @@
      - Publish directory: `blackjack-score-tracker/src`
    - Deploy automatically
 
-#### Custom Domain (Optional):
+#### Custom Domain (Optional)
+
 - Go to Domain settings
 - Add custom domain
 - Update DNS records as instructed
@@ -90,7 +97,8 @@
 
 ### Option 3: Vercel (Alternative - Developer Friendly)
 
-#### Steps:
+#### Steps
+
 1. **Deploy from GitHub:**
    - Go to [vercel.com](https://vercel.com)
    - Sign up with GitHub
@@ -111,7 +119,8 @@
 
 ### Option 4: Local Development
 
-#### Start Local Server:
+#### Start Local Server
+
 ```bash
 # Using npm
 npm start
@@ -154,27 +163,32 @@ Black-Jack-Tracker/
 ## 🔧 Configuration Files Explained
 
 ### `package.json`
+
 - Project metadata and scripts
 - Dependencies management
 - Repository information
 
 ### `.github/workflows/deploy.yml`
+
 - Automated GitHub Pages deployment
 - Triggers on push to main branch
 - No manual intervention needed
 
 ### `netlify.toml`
+
 - Netlify-specific configuration
 - Security headers
 - Cache optimization
 - Redirect rules
 
 ### `vercel.json`
+
 - Vercel deployment settings
 - Static file serving
 - Security headers
 
 ### `.gitignore`
+
 - Files to exclude from Git
 - Standard patterns for web projects
 - IDE and OS specific files
@@ -184,6 +198,7 @@ Black-Jack-Tracker/
 ## 🌐 Recommended Deployment: GitHub Pages
 
 **Why GitHub Pages?**
+
 - ✅ **Free**: No cost for public repositories
 - ✅ **Easy**: Simple setup process
 - ✅ **Reliable**: 99.9% uptime
@@ -197,6 +212,7 @@ Black-Jack-Tracker/
 ## 🎯 Post-Deployment Checklist
 
 After deployment:
+
 - [ ] Test all game features
 - [ ] Verify responsive design on mobile
 - [ ] Check 404 page works
@@ -209,25 +225,29 @@ After deployment:
 
 ## 🆘 Troubleshooting
 
-### Common Issues:
+### Common Issues
 
 **GitHub Pages not working?**
+
 - Check repository is public
 - Verify Pages is enabled in settings
 - Wait 5-10 minutes for propagation
 - Check Actions tab for build errors
 
 **Netlify deploy failed?**
+
 - Ensure `src` folder is uploaded
 - Check build logs in Netlify dashboard
 - Verify all files are included
 
 **Files not loading?**
+
 - Check file paths are correct
 - Ensure all files are in `src` folder
 - Verify CSS/JS files are linked properly
 
 **Still having issues?**
+
 - Check browser console for errors
 - Verify internet connection
 - Try different browser

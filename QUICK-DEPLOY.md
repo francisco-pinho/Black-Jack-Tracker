@@ -3,12 +3,14 @@
 ## GitHub Pages (Recommended)
 
 **Step 1: Create GitHub Repository**
+
 1. Go to [github.com](https://github.com) and create new repository
 2. Name it: `blackjack-score-tracker`
 3. Make it **Public**
 4. Don't add README (we have one)
 
 **Step 2: Push Code**
+
 ```bash
 cd c:\Users\franc\.vscode\Black-Jack-Tracker
 git add .
@@ -18,6 +20,7 @@ git push -u origin main
 ```
 
 **Step 3: Enable GitHub Pages**
+
 1. Go to your repository → **Settings** → **Pages**
 2. Source: **Deploy from a branch**
 3. Branch: **main** / **/ (root)**
@@ -37,7 +40,7 @@ Wait 5 minutes, then visit:
 
 ---
 
-## Files Created for Deployment:
+## Files Created for Deployment
 
 ✅ `package.json` - Project configuration  
 ✅ `.github/workflows/deploy.yml` - Auto-deployment  
