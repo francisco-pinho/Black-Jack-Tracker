@@ -1,14 +1,17 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "public": true,
-  "github": {
-    "silent": true
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/blackjack-score-tracker/src/index.html"
-    }
-  ]
+    "version": 2,
+    "builds": [
+        {
+            "src": "blackjack-score-tracker/src/**",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/blackjack-score-tracker/src/$1"
+        }
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
 }
