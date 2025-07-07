@@ -32,6 +32,7 @@
     "engines": {
         "node": ">=14.0.0"
     },
-    "devDependencies": {},
-    "dependencies": {}
+    "dependencies": {
+        "@vercel/speed-insights": "^1.2.0"
+    }
 }
