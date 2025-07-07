@@ -306,9 +306,6 @@ class BlackjackTracker {
     }
 
     resetGame() {
-        if (!confirm('Reset all scores? This will clear all player statistics but keep the players in the game.')) {
-            return;
-        }
 
         this.players.forEach(player => {
             player.wins = 0;
@@ -325,10 +322,6 @@ class BlackjackTracker {
     }
 
     newGame() {
-        if (!confirm('Start a new game? This will return to the setup screen.')) {
-            return;
-        }
-
         this.gameActive = false;
         this.players = [];
         this.winValue = 0.05;
