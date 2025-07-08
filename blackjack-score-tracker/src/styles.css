@@ -369,10 +369,53 @@ html {
     border-bottom: 2px solid #ecf0f1;
 }
 
+.player-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.edit-player-btn {
+    background: #3498db !important;
+    color: white !important;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-player-btn:hover {
+    background: #2980b9 !important;
+}
+
 .player-name {
     color: #2c3e50;
     font-size: 1.3rem;
     font-weight: 700;
+}
+
+.player-name-input {
+    background: transparent !important;
+    border: 2px solid #3498db !important;
+    border-radius: 4px !important;
+    color: #2c3e50 !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    font-family: inherit !important;
+    padding: 4px 8px !important;
+    width: 100% !important;
+    outline: none !important;
+    transition: border-color 0.2s ease !important;
+}
+
+.player-name-input:focus {
+    border-color: #2980b9 !important;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2) !important;
 }
 
 .player-stats {

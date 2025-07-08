@@ -217,6 +217,13 @@ class BlackjackTracker {
             this.removePlayer(player.id);
         };
 
+        // Bind edit button with optimized event handling
+        const editBtn = card.querySelector('.edit-player-btn');
+        editBtn.onclick = (e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            this.editPlayerName(player.id);
+        };
+
         return cardElement;
     }
 
@@ -663,6 +670,163 @@ class BlackjackTracker {
             tie: 'Empate'
         };
         return actionNames[action] || action;
+    }
+
+    editPlayerName(playerId) {
+        const player = this.players.find(p => p.id === playerId);
+        if (!player) return;
+
+        const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
+        if (!playerCard) return;
+
+        const nameElement = playerCard.querySelector('.player-name');
+        const editBtn = playerCard.querySelector('.edit-player-btn');
+        
+        // Check if already in edit mode
+        if (nameElement.querySelector('input')) {
+            return;
+        }
+
+        // Store original text
+        const originalName = player.name;
+        
+        // Create input element
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = originalName;
+        input.maxLength = 20;
+        input.className = 'player-name-input';
+        
+        // Style the input to match the name appearance
+        Object.assign(input.style, {
+            background: 'transparent',
+            border: '2px solid #3498db',
+            borderRadius: '4px',
+            color: '#2c3e50',
+            fontSize: '1.3rem',
+            fontWeight: '700',
+            fontFamily: 'inherit',
+            padding: '4px 8px',
+            width: '100%',
+            outline: 'none'
+        });
+
+        // Replace name text with input
+        nameElement.textContent = '';
+        nameElement.appendChild(input);
+        
+        // Focus and select text
+        input.focus();
+        input.select();
+
+        // Change edit button to confirm/cancel buttons
+        const actionsContainer = editBtn.parentNode;
+        const originalEditBtn = editBtn.cloneNode(true);
+        
+        // Create confirm button
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'btn btn-success btn-small';
+        confirmBtn.innerHTML = '<i class="fas fa-check"></i>';
+        confirmBtn.style.marginRight = '4px';
+        
+        // Create cancel button  
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn btn-secondary btn-small';
+        cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+
+        // Replace edit button with confirm/cancel
+        actionsContainer.replaceChild(confirmBtn, editBtn);
+        actionsContainer.insertBefore(cancelBtn, actionsContainer.lastElementChild);
+
+        // Handle confirm
+        const confirmEdit = () => {
+            const newName = input.value.trim();
+            
+            if (!newName) {
+                this.showMessage('Player name cannot be empty', 'error');
+                input.focus();
+                return;
+            }
+
+            if (newName.length > 20) {
+                this.showMessage('Player name cannot exceed 20 characters', 'error');
+                input.focus();
+                return;
+            }
+
+            // Check if name already exists (excluding current player)
+            const existingPlayer = this.players.find(p => 
+                p.id !== playerId && p.name.toLowerCase() === newName.toLowerCase()
+            );
+            
+            if (existingPlayer) {
+                this.showMessage('A player with this name already exists', 'error');
+                input.focus();
+                return;
+            }
+
+            // Update player name
+            player.name = newName;
+            
+            // Restore UI
+            nameElement.textContent = newName;
+            actionsContainer.replaceChild(originalEditBtn, confirmBtn);
+            actionsContainer.removeChild(cancelBtn);
+            
+            // Re-bind edit button
+            originalEditBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.editPlayerName(player.id);
+            };
+            
+            this.saveToStorage();
+            this.showMessage(`Player name updated to "${newName}"`, 'success');
+        };
+
+        // Handle cancel
+        const cancelEdit = () => {
+            // Restore original name
+            nameElement.textContent = originalName;
+            actionsContainer.replaceChild(originalEditBtn, confirmBtn);
+            actionsContainer.removeChild(cancelBtn);
+            
+            // Re-bind edit button
+            originalEditBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.editPlayerName(player.id);
+            };
+        };
+
+        // Bind events
+        confirmBtn.onclick = (e) => {
+            e.stopPropagation();
+            confirmEdit();
+        };
+        
+        cancelBtn.onclick = (e) => {
+            e.stopPropagation();
+            cancelEdit();
+        };
+
+        // Handle Enter and Escape keys
+        input.onkeydown = (e) => {
+            e.stopPropagation();
+            if (e.key === 'Enter') {
+                confirmEdit();
+            } else if (e.key === 'Escape') {
+                cancelEdit();
+            }
+        };
+
+        // Handle blur (click outside)
+        input.onblur = () => {
+            // Small delay to allow button clicks to register
+            setTimeout(() => {
+                if (document.activeElement !== confirmBtn && document.activeElement !== cancelBtn) {
+                    confirmEdit();
+                }
+            }, 100);
+        };
     }
 }
 
