@@ -288,13 +288,13 @@ class BlackjackTracker {
         const player = this.players.find(p => p.id === playerId);
         if (!player) return;
 
-        if (confirm(`Remove ${player.name} from the game?`)) {
-            this.players = this.players.filter(p => p.id !== playerId);
-            this.renderPlayers();
-            this.updateGameInfo();
-            this.saveToStorage();
-            this.showMessage(`${player.name} removed from game`, 'info');
-        }
+
+        this.players = this.players.filter(p => p.id !== playerId);
+        this.renderPlayers();
+        this.updateGameInfo();
+        this.saveToStorage();
+        this.showMessage(`${player.name} removed from game`, 'info');
+
     }
 
     updateGameInfo() {
@@ -406,7 +406,7 @@ class BlackjackTracker {
         }
 
         this.isSaving = true;
-        
+
         await new Promise(resolve => {
             requestIdleCallback(() => {
                 const gameState = {
@@ -415,16 +415,16 @@ class BlackjackTracker {
                     gameActive: this.gameActive,
                     playerIdCounter: this.playerIdCounter
                 };
-                
+
                 localStorage.setItem('blackjackTracker', JSON.stringify(gameState));
                 this.isSaving = false;
-                
+
                 // Check if another save is pending
                 if (this.pendingSave) {
                     this.pendingSave = false;
                     this.saveToStorage();
                 }
-                
+
                 resolve();
             });
         });
