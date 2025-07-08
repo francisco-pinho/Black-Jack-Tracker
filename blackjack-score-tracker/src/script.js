@@ -281,7 +281,7 @@ class BlackjackTracker {
 
     removePlayer(playerId) {
         if (this.players.length <= 1) {
-            this.showMessage('Cannot remove the last player', 'error');
+            this.newGame();
             return;
         }
 
