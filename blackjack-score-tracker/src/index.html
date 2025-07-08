@@ -52,6 +52,9 @@
         <header class="app-header">
             <h1><i class="fas fa-spade"></i> Blackjack Score Tracker</h1>
             <div class="header-actions">
+                <button id="addPlayerHeaderBtn" class="btn btn-primary" style="display: none;">
+                    <i class="fas fa-user-plus"></i> Add Player
+                </button>
                 <button id="newGameBtn" class="btn btn-secondary" style="display: none;">
                     <i class="fas fa-plus"></i> New Game
                 </button>
@@ -122,16 +125,6 @@
                 </div>
             </div>
 
-            <!-- Add Player During Game -->
-            <div class="add-player-section">
-                <div class="input-group">
-                    <input type="text" id="newPlayerGameName" placeholder="Add new player" maxlength="20">
-                    <button id="addPlayerGameBtn" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i> Add Player
-                    </button>
-                </div>
-            </div>
-
             <!-- Players Grid -->
             <div id="playersGrid" class="players-grid">
                 <!-- Players will be dynamically added here -->
@@ -173,6 +166,32 @@
                         <i class="fas fa-plus"></i> Start New Game
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Player Modal -->
+    <div id="addPlayerModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Add New Player</h3>
+                <button id="closeModalBtn" class="btn btn-secondary btn-small">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="newPlayerModalName">Player Name:</label>
+                    <input type="text" id="newPlayerModalName" placeholder="Enter player name" maxlength="20">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelAddPlayerBtn" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button id="confirmAddPlayerBtn" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Add Player
+                </button>
             </div>
         </div>
     </div>

@@ -39,17 +39,23 @@ class BlackjackTracker {
         this.startGameBtn = document.getElementById('startGameBtn');
 
         // Game elements
-        this.newPlayerGameInput = document.getElementById('newPlayerGameName');
-        this.addPlayerGameBtn = document.getElementById('addPlayerGameBtn');
         this.playersGrid = document.getElementById('playersGrid');
         this.currentWinValueSpan = document.getElementById('currentWinValue');
         this.totalPlayersSpan = document.getElementById('totalPlayers');
         this.totalEarningsSpan = document.getElementById('totalEarnings');
 
         // Header buttons
+        this.addPlayerHeaderBtn = document.getElementById('addPlayerHeaderBtn');
         this.newGameBtn = document.getElementById('newGameBtn');
         this.resetGameBtn = document.getElementById('resetGameBtn');
         this.finishGameBtn = document.getElementById('finishGameBtn');
+
+        // Modal elements
+        this.addPlayerModal = document.getElementById('addPlayerModal');
+        this.newPlayerModalName = document.getElementById('newPlayerModalName');
+        this.closeModalBtn = document.getElementById('closeModalBtn');
+        this.cancelAddPlayerBtn = document.getElementById('cancelAddPlayerBtn');
+        this.confirmAddPlayerBtn = document.getElementById('confirmAddPlayerBtn');
 
         // Scoreboard elements
         this.gameDurationSpan = document.getElementById('gameDuration');
@@ -74,16 +80,29 @@ class BlackjackTracker {
         this.startGameBtn.addEventListener('click', () => this.startGame());
         this.winValueInput.addEventListener('input', () => this.updateStartButton());
 
-        // Game events
-        this.addPlayerGameBtn.addEventListener('click', () => this.addPlayerToGame());
-        this.newPlayerGameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.addPlayerToGame();
-        });
+        // Game events (removed old add player input)
 
         // Header events
+        this.addPlayerHeaderBtn.addEventListener('click', () => this.showAddPlayerModal());
         this.newGameBtn.addEventListener('click', () => this.newGame());
         this.resetGameBtn.addEventListener('click', () => this.resetGame());
         this.finishGameBtn.addEventListener('click', () => this.finishGame());
+
+        // Modal events
+        this.closeModalBtn.addEventListener('click', () => this.hideAddPlayerModal());
+        this.cancelAddPlayerBtn.addEventListener('click', () => this.hideAddPlayerModal());
+        this.confirmAddPlayerBtn.addEventListener('click', () => this.addPlayerFromModal());
+        this.newPlayerModalName.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.addPlayerFromModal();
+            if (e.key === 'Escape') this.hideAddPlayerModal();
+        });
+
+        // Close modal when clicking outside
+        this.addPlayerModal.addEventListener('click', (e) => {
+            if (e.target === this.addPlayerModal) {
+                this.hideAddPlayerModal();
+            }
+        });
 
         // Scoreboard events
         this.backToGameBtn.addEventListener('click', () => this.backToGame());
@@ -158,39 +177,11 @@ class BlackjackTracker {
         this.setupScreen.style.display = 'none';
         this.gameScreen.style.display = 'block';
         this.scoreboardScreen.style.display = 'none';
+        this.addPlayerHeaderBtn.style.display = 'inline-flex';
         this.newGameBtn.style.display = 'inline-flex';
         this.resetGameBtn.style.display = 'inline-flex';
         this.finishGameBtn.style.display = 'inline-flex';
 
-        this.renderPlayers();
-        this.updateGameInfo();
-        this.saveToStorage();
-    }
-
-    addPlayerToGame() {
-        const name = this.newPlayerGameInput.value.trim();
-        if (!name) {
-            this.showMessage('Please enter a player name', 'error');
-            return;
-        }
-
-        if (this.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
-            this.showMessage('Player with this name already exists', 'error');
-            return;
-        }
-
-        const player = {
-            id: this.playerIdCounter++,
-            name: name,
-            wins: 0,
-            losses: 0,
-            blackjacks: 0,
-            netScore: 0,
-            earnings: 0
-        };
-
-        this.players.push(player);
-        this.newPlayerGameInput.value = '';
         this.renderPlayers();
         this.updateGameInfo();
         this.saveToStorage();
@@ -481,12 +472,12 @@ class BlackjackTracker {
         this.gameStartTime = null;
         this.winValueInput.value = '0.05';
         this.newPlayerNameInput.value = '';
-        this.newPlayerGameInput.value = '';
 
         // Show setup screen
         this.setupScreen.style.display = 'block';
         this.gameScreen.style.display = 'none';
         this.scoreboardScreen.style.display = 'none';
+        this.addPlayerHeaderBtn.style.display = 'none';
         this.newGameBtn.style.display = 'none';
         this.resetGameBtn.style.display = 'none';
         this.finishGameBtn.style.display = 'none';
@@ -989,6 +980,54 @@ class BlackjackTracker {
                 }
             }, 50); // Reduced delay
         };
+    }
+
+    showAddPlayerModal() {
+        this.newPlayerModalName.value = '';
+        this.addPlayerModal.style.display = 'flex';
+        setTimeout(() => {
+            this.addPlayerModal.classList.add('show');
+            this.newPlayerModalName.focus();
+        }, 10);
+    }
+
+    hideAddPlayerModal() {
+        this.addPlayerModal.classList.remove('show');
+        setTimeout(() => {
+            this.addPlayerModal.style.display = 'none';
+        }, 300);
+    }
+
+    addPlayerFromModal() {
+        const name = this.newPlayerModalName.value.trim();
+        if (!name) {
+            this.showMessage('Please enter a player name', 'error');
+            this.newPlayerModalName.focus();
+            return;
+        }
+
+        if (this.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+            this.showMessage('Player with this name already exists', 'error');
+            this.newPlayerModalName.focus();
+            return;
+        }
+
+        const player = {
+            id: this.playerIdCounter++,
+            name: name,
+            wins: 0,
+            losses: 0,
+            blackjacks: 0,
+            netScore: 0,
+            earnings: 0
+        };
+
+        this.players.push(player);
+        this.renderPlayers();
+        this.updateGameInfo();
+        this.saveToStorage();
+        this.hideAddPlayerModal();
+        this.showMessage(`${name} added to the game`, 'success');
     }
 
     // ...existing code...
