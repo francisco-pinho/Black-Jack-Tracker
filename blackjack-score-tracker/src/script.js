@@ -131,7 +131,7 @@ class BlackjackTracker {
         this.gameActive = true;
 
         // Update game info
-        this.currentWinValueSpan.textContent = `€${this.winValue.toFixed(2)}`;
+        this.currentWinValueSpan.textContent = `￦${this.winValue.toFixed(2)}`;
 
         // Show game screen
         this.setupScreen.style.display = 'none';
@@ -214,7 +214,7 @@ class BlackjackTracker {
         card.querySelector('.net-score').textContent = player.netScore.toFixed(1);
 
         const earningsElement = card.querySelector('.earnings');
-        earningsElement.textContent = `€${player.earnings.toFixed(2)}`;
+        earningsElement.textContent = `￦${player.earnings.toFixed(2)}`;
 
         // Update earnings color
         earningsElement.classList.remove('positive', 'negative', 'zero');
@@ -301,7 +301,7 @@ class BlackjackTracker {
         this.totalPlayersSpan.textContent = this.players.length;
 
         const totalEarnings = this.players.reduce((sum, player) => sum + player.earnings, 0);
-        this.totalEarningsSpan.textContent = `€${totalEarnings.toFixed(2)}`;
+        this.totalEarningsSpan.textContent = `￦${totalEarnings.toFixed(2)}`;
 
         // Update total earnings color
         this.totalEarningsSpan.classList.remove('positive', 'negative', 'zero');
