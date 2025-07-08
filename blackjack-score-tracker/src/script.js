@@ -1,10 +1,12 @@
-
 class BlackjackTracker {
     constructor() {
         this.players = [];
         this.winValue = 0.05;
         this.gameActive = false;
         this.playerIdCounter = 0;
+
+        // Round tracking for visual feedback
+        this.currentRoundPlayers = new Set(); // Track players who received a score this round
 
         this.initializeElements();
         this.bindEvents();
@@ -225,11 +227,33 @@ class BlackjackTracker {
         } else {
             earningsElement.classList.add('zero');
         }
+
+        // Update round status colors
+        this.updatePlayerRoundStatus(card, player.id);
+    }
+
+    updatePlayerRoundStatus(card, playerId) {
+        // Remove all round status classes
+        card.classList.remove('round-win', 'round-loss', 'round-pending');
+
+        if (!this.currentRoundPlayers.has(playerId)) {
+            // Player hasn't received a classification this round
+            card.classList.add('round-pending');
+        } else {
+            // Check the last action for this player to determine color
+            // We'll use a simple approach: check if they're in the current round set
+            // The color will be determined by the action buttons that were clicked
+            // For now, we'll add a neutral classified state
+            card.classList.add('round-classified');
+        }
     }
 
     handlePlayerAction(playerId, action) {
         const player = this.players.find(p => p.id === playerId);
         if (!player) return;
+
+        // Track that this player received a score this round
+        this.currentRoundPlayers.add(playerId);
 
         switch (action) {
             case 'win':
@@ -252,19 +276,52 @@ class BlackjackTracker {
                 player.blackjacks++;
                 player.netScore += 1.5;
                 break;
+            case 'tie':
+                // Tie doesn't change any scores, but marks player as having received a classification
+                break;
         }
 
-        // Calculate earnings
-        player.earnings = player.netScore * this.winValue;
+        // Calculate earnings (only if not a tie that doesn't affect scores)
+        if (action !== 'tie') {
+            player.earnings = player.netScore * this.winValue;
+        }
 
         // Update UI
         const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
         this.updatePlayerCardStats(playerCard, player);
+        this.setPlayerRoundStatus(playerId, action);
         this.updateGameInfo();
         this.saveToStorage();
 
         // Show action feedback
         this.showActionFeedback(player.name, action);
+
+        // Check if all players have been classified this round
+        this.checkRoundComplete();
+    }
+
+    setPlayerRoundStatus(playerId, status) {
+        const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
+        if (!playerCard) return;
+
+        // Remove all round status classes
+        playerCard.classList.remove('round-win', 'round-loss', 'round-tie', 'round-pending', 'round-classified');
+
+        // Add the appropriate status class
+        switch (status) {
+            case 'win':
+            case 'doubleWin':
+            case 'blackjack':
+                playerCard.classList.add('round-win');
+                break;
+            case 'loss':
+            case 'doubleLoss':
+                playerCard.classList.add('round-loss');
+                break;
+            case 'tie':
+                playerCard.classList.add('round-tie');
+                break;
+        }
     }
 
     showActionFeedback(playerName, action) {
@@ -273,10 +330,34 @@ class BlackjackTracker {
             loss: `${playerName}: +1 Loss`,
             doubleWin: `${playerName}: +2 Wins`,
             doubleLoss: `${playerName}: +2 Losses`,
-            blackjack: `${playerName}: Blackjack! (+1.5)`
+            blackjack: `${playerName}: Blackjack! (+1.5)`,
+            tie: `${playerName}: Tie (no change)`
         };
 
         this.showMessage(messages[action], 'success');
+    }
+
+    checkRoundComplete() {
+        // Check if all players have received a classification this round
+        if (this.currentRoundPlayers.size === this.players.length) {
+            // All players classified, reset for next round
+            setTimeout(() => {
+                this.resetRoundStatus();
+            }, 2000); // Wait 2 seconds before resetting
+        }
+    }
+
+    resetRoundStatus() {
+        // Clear the round tracking
+        this.currentRoundPlayers.clear();
+
+        // Remove round status classes from all player cards
+        const playerCards = document.querySelectorAll('.player-card');
+        playerCards.forEach(card => {
+            card.classList.remove('round-win', 'round-loss', 'round-tie', 'round-classified', 'round-pending');
+        });
+
+        this.showMessage('Nova rodada iniciada', 'info');
     }
 
     removePlayer(playerId) {

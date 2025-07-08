@@ -393,6 +393,29 @@ body {
     gap: 10px;
 }
 
+/* Button Layout Adjustments */
+.btn-tie {
+    background: #f39c12;
+    color: white;
+    grid-column: span 2;
+    /* Make tie button span 2 columns to center it */
+}
+
+.btn-tie:hover {
+    background: #e67e22;
+}
+
+.btn-blackjack {
+    background: #f39c12;
+    color: white;
+    grid-column: 1 / -1;
+    /* Full width for blackjack button */
+}
+
+.btn-blackjack:hover {
+    background: #e67e22;
+}
+
 .action-btn {
     padding: 12px 15px;
     border: none;
@@ -456,6 +479,76 @@ body {
 
 .btn-blackjack:hover {
     background: #e67e22;
+}
+
+/* Round Status Colors - Simple and Clear */
+.player-card.round-win {
+    background: #d4edda;
+    /* Light green */
+    border-color: #27ae60;
+    color: #155724;
+    box-shadow: 0 4px 20px rgba(39, 174, 96, 0.3);
+    transform: scale(1.01);
+}
+
+.player-card.round-win .player-name,
+.player-card.round-win .stat-label,
+.player-card.round-win .stat-value {
+    color: #155724;
+    font-weight: 600;
+}
+
+.player-card.round-loss {
+    background: #f8d7da;
+    /* Light red */
+    border-color: #e74c3c;
+    color: #721c24;
+    box-shadow: 0 4px 20px rgba(231, 76, 60, 0.3);
+    transform: scale(1.01);
+}
+
+.player-card.round-loss .player-name,
+.player-card.round-loss .stat-label,
+.player-card.round-loss .stat-value {
+    color: #721c24;
+    font-weight: 600;
+}
+
+.player-card.round-tie {
+    background: #fff3cd;
+    /* Light yellow/orange */
+    border-color: #f39c12;
+    color: #856404;
+    box-shadow: 0 4px 20px rgba(243, 156, 18, 0.3);
+    transform: scale(1.01);
+}
+
+.player-card.round-tie .player-name,
+.player-card.round-tie .stat-label,
+.player-card.round-tie .stat-value {
+    color: #856404;
+    font-weight: 600;
+}
+
+.player-card.round-pending {
+    background: #f8f9fa;
+    /* Light gray */
+    border-color: #bdc3c7;
+    opacity: 0.9;
+}
+
+@keyframes gentle-pulse {
+
+    0%,
+    100% {
+        opacity: 0.9;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.005);
+    }
 }
 
 /* Responsive Design */
@@ -528,24 +621,36 @@ body {
 }
 
 /* Animations */
-@keyframes fadeIn {
+@keyframes slideInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px) scale(0.95);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideInFade {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
 .player-card {
-    animation: fadeIn 0.3s ease;
+    animation: slideInUp 0.4s ease-out;
 }
 
 .setup-player-item {
-    animation: fadeIn 0.3s ease;
+    animation: slideInFade 0.3s ease-out;
 }
 
 /* Scrollbar Styles */
