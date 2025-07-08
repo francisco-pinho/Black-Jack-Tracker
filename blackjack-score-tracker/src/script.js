@@ -234,17 +234,14 @@ class BlackjackTracker {
 
     updatePlayerRoundStatus(card, playerId) {
         // Remove all round status classes
-        card.classList.remove('round-win', 'round-loss', 'round-pending');
+        card.classList.remove('round-win', 'round-loss', 'round-tie', 'round-pending', 'round-classified', 'round-blackjack', 'blackjack-celebration');
 
         if (!this.currentRoundPlayers.has(playerId)) {
             // Player hasn't received a classification this round
             card.classList.add('round-pending');
         } else {
-            // Check the last action for this player to determine color
-            // We'll use a simple approach: check if they're in the current round set
-            // The color will be determined by the action buttons that were clicked
-            // For now, we'll add a neutral classified state
-            card.classList.add('round-classified');
+            // Player has been classified - the specific color is set by setPlayerRoundStatus
+            // We don't need to do anything here as the status is already set
         }
     }
 
@@ -304,15 +301,18 @@ class BlackjackTracker {
         const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
         if (!playerCard) return;
 
-        // Remove all round status classes
-        playerCard.classList.remove('round-win', 'round-loss', 'round-tie', 'round-pending', 'round-classified');
+        // Remove ALL round status classes including blackjack-celebration
+        playerCard.classList.remove('round-win', 'round-loss', 'round-tie', 'round-pending', 'round-classified', 'round-blackjack', 'blackjack-celebration');
 
         // Add the appropriate status class
         switch (status) {
             case 'win':
             case 'doubleWin':
-            case 'blackjack':
                 playerCard.classList.add('round-win');
+                break;
+            case 'blackjack':
+                playerCard.classList.add('round-blackjack'); // Special class for blackjack
+                this.triggerBlackjackCelebration(playerCard);
                 break;
             case 'loss':
             case 'doubleLoss':
@@ -351,10 +351,10 @@ class BlackjackTracker {
         // Clear the round tracking
         this.currentRoundPlayers.clear();
 
-        // Remove round status classes from all player cards
+        // Remove ALL round status classes from all player cards
         const playerCards = document.querySelectorAll('.player-card');
         playerCards.forEach(card => {
-            card.classList.remove('round-win', 'round-loss', 'round-tie', 'round-classified', 'round-pending');
+            card.classList.remove('round-win', 'round-loss', 'round-tie', 'round-classified', 'round-pending', 'round-blackjack', 'blackjack-celebration');
         });
 
         this.showMessage('Nova rodada iniciada', 'info');
@@ -535,6 +535,39 @@ class BlackjackTracker {
             console.error('Error loading from storage:', error);
             this.showMessage('Error loading saved game', 'error');
         }
+    }
+
+    triggerBlackjackCelebration(playerCard) {
+        // Add the blackjack celebration class
+        playerCard.classList.add('blackjack-celebration');
+
+        // Create sparks container
+        const sparksContainer = document.createElement('div');
+        sparksContainer.className = 'rocket-sparks';
+
+        // Create individual sparks
+        const sparkEmojis = ['⭐', '✨', '💫', '🌟'];
+        for (let i = 0; i < 6; i++) {
+            const spark = document.createElement('div');
+            spark.className = 'spark';
+            spark.textContent = sparkEmojis[Math.floor(Math.random() * sparkEmojis.length)];
+
+            // Random positioning
+            spark.style.top = Math.random() * 80 + '%';
+            spark.style.left = Math.random() * 80 + '%';
+            spark.style.animationDelay = (Math.random() * 1.5) + 's';
+
+            sparksContainer.appendChild(spark);
+        }
+
+        playerCard.appendChild(sparksContainer);
+
+        // Remove only the sparks after animation completes, keep the yellow background
+        setTimeout(() => {
+            if (sparksContainer.parentNode) {
+                sparksContainer.parentNode.removeChild(sparksContainer);
+            }
+        }, 2000);
     }
 }
 
