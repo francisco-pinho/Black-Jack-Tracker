@@ -4,6 +4,7 @@ class BlackjackTracker {
         this.winValue = 0.05;
         this.gameActive = false;
         this.playerIdCounter = 0;
+        this.gameStartTime = null;
 
         // Round tracking for visual feedback
         this.currentRoundPlayers = new Set(); // Track players who received a score this round
@@ -28,6 +29,7 @@ class BlackjackTracker {
         // Screen elements
         this.setupScreen = document.getElementById('setupScreen');
         this.gameScreen = document.getElementById('gameScreen');
+        this.scoreboardScreen = document.getElementById('scoreboardScreen');
 
         // Setup elements
         this.winValueInput = document.getElementById('winValue');
@@ -47,10 +49,20 @@ class BlackjackTracker {
         // Header buttons
         this.newGameBtn = document.getElementById('newGameBtn');
         this.resetGameBtn = document.getElementById('resetGameBtn');
+        this.finishGameBtn = document.getElementById('finishGameBtn');
+
+        // Scoreboard elements
+        this.gameDurationSpan = document.getElementById('gameDuration');
+        this.finalTotalPlayersSpan = document.getElementById('finalTotalPlayers');
+        this.finalTotalEarningsSpan = document.getElementById('finalTotalEarnings');
+        this.scoreboardList = document.getElementById('scoreboardList');
+        this.backToGameBtn = document.getElementById('backToGameBtn');
+        this.startNewGameBtn = document.getElementById('startNewGameBtn');
 
         // Templates
         this.playerCardTemplate = document.getElementById('playerCardTemplate');
         this.setupPlayerTemplate = document.getElementById('setupPlayerTemplate');
+        this.scoreboardItemTemplate = document.getElementById('scoreboardItemTemplate');
     }
 
     bindEvents() {
@@ -71,6 +83,11 @@ class BlackjackTracker {
         // Header events
         this.newGameBtn.addEventListener('click', () => this.newGame());
         this.resetGameBtn.addEventListener('click', () => this.resetGame());
+        this.finishGameBtn.addEventListener('click', () => this.finishGame());
+
+        // Scoreboard events
+        this.backToGameBtn.addEventListener('click', () => this.backToGame());
+        this.startNewGameBtn.addEventListener('click', () => this.newGame());
     }
 
     addPlayerToSetup() {
@@ -132,6 +149,7 @@ class BlackjackTracker {
     startGame() {
         this.winValue = parseFloat(this.winValueInput.value) || 0.05;
         this.gameActive = true;
+        this.gameStartTime = new Date();
 
         // Update game info
         this.currentWinValueSpan.textContent = `💎${this.winValue.toFixed(2)}`;
@@ -139,8 +157,10 @@ class BlackjackTracker {
         // Show game screen
         this.setupScreen.style.display = 'none';
         this.gameScreen.style.display = 'block';
+        this.scoreboardScreen.style.display = 'none';
         this.newGameBtn.style.display = 'inline-flex';
         this.resetGameBtn.style.display = 'inline-flex';
+        this.finishGameBtn.style.display = 'inline-flex';
 
         this.renderPlayers();
         this.updateGameInfo();
@@ -458,6 +478,7 @@ class BlackjackTracker {
         this.gameActive = false;
         this.players = [];
         this.winValue = 0.05;
+        this.gameStartTime = null;
         this.winValueInput.value = '0.05';
         this.newPlayerNameInput.value = '';
         this.newPlayerGameInput.value = '';
@@ -465,13 +486,223 @@ class BlackjackTracker {
         // Show setup screen
         this.setupScreen.style.display = 'block';
         this.gameScreen.style.display = 'none';
+        this.scoreboardScreen.style.display = 'none';
         this.newGameBtn.style.display = 'none';
         this.resetGameBtn.style.display = 'none';
+        this.finishGameBtn.style.display = 'none';
 
         this.renderSetupPlayers();
         this.updateStartButton();
         this.saveToStorage();
         this.showMessage('Ready for new game setup', 'info');
+    }
+
+    finishGame() {
+        if (this.players.length === 0) {
+            this.showMessage('No players to show results for', 'error');
+            return;
+        }
+
+        this.showScoreboard();
+    }
+
+    backToGame() {
+        this.setupScreen.style.display = 'none';
+        this.gameScreen.style.display = 'block';
+        this.scoreboardScreen.style.display = 'none';
+    }
+
+    showScoreboard() {
+        // Calculate game duration
+        const gameDuration = this.calculateGameDuration();
+
+        // Sort players by earnings (descending)
+        const sortedPlayers = [...this.players].sort((a, b) => {
+            if (b.earnings !== a.earnings) {
+                return b.earnings - a.earnings;
+            }
+            // If earnings are equal, sort by net score
+            if (b.netScore !== a.netScore) {
+                return b.netScore - a.netScore;
+            }
+            // If net score is equal, sort by blackjacks
+            return b.blackjacks - a.blackjacks;
+        });
+
+        // Update scoreboard info
+        this.gameDurationSpan.textContent = gameDuration;
+        this.finalTotalPlayersSpan.textContent = this.players.length;
+
+        const totalEarnings = this.players.reduce((sum, player) => sum + player.earnings, 0);
+        this.finalTotalEarningsSpan.textContent = `💎${totalEarnings.toFixed(2)}`;
+
+        // Update total earnings color
+        this.finalTotalEarningsSpan.classList.remove('positive', 'negative', 'zero');
+        if (totalEarnings > 0) {
+            this.finalTotalEarningsSpan.classList.add('positive');
+        } else if (totalEarnings < 0) {
+            this.finalTotalEarningsSpan.classList.add('negative');
+        } else {
+            this.finalTotalEarningsSpan.classList.add('zero');
+        }
+
+        // Render scoreboard
+        this.renderScoreboard(sortedPlayers);
+
+        // Show scoreboard screen
+        this.setupScreen.style.display = 'none';
+        this.gameScreen.style.display = 'none';
+        this.scoreboardScreen.style.display = 'block';
+    }
+
+    calculateGameDuration() {
+        if (!this.gameStartTime) {
+            return '--';
+        }
+
+        const now = new Date();
+        const duration = now - this.gameStartTime;
+
+        const hours = Math.floor(duration / (1000 * 60 * 60));
+        const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((duration % (1000 * 60)) / 1000);
+
+        if (hours > 0) {
+            return `${hours}h ${minutes}m ${seconds}s`;
+        } else if (minutes > 0) {
+            return `${minutes}m ${seconds}s`;
+        } else {
+            return `${seconds}s`;
+        }
+    }
+
+    renderScoreboard(sortedPlayers) {
+        // Performance optimization: Use DocumentFragment for batch DOM updates
+        const fragment = document.createDocumentFragment();
+
+        sortedPlayers.forEach((player, index) => {
+            const scoreboardItem = this.createScoreboardItem(player, index + 1);
+            fragment.appendChild(scoreboardItem);
+        });
+
+        // Clear and update in one operation
+        this.scoreboardList.innerHTML = '';
+        this.scoreboardList.appendChild(fragment);
+    }
+
+    createScoreboardItem(player, rank) {
+        const itemElement = this.scoreboardItemTemplate.content.cloneNode(true);
+        const item = itemElement.querySelector('.scoreboard-item');
+
+        // Set rank
+        item.querySelector('.rank-number').textContent = rank;
+
+        // Set player info
+        item.querySelector('.player-name').textContent = player.name;
+        item.querySelector('.wins').textContent = player.wins;
+        item.querySelector('.losses').textContent = player.losses;
+        item.querySelector('.blackjacks').textContent = player.blackjacks;
+
+        // Set scores
+        const netScoreElement = item.querySelector('.net-score .value');
+        netScoreElement.textContent = player.netScore.toFixed(1);
+
+        const earningsElement = item.querySelector('.earnings .value');
+        earningsElement.textContent = `💎${player.earnings.toFixed(2)}`;
+
+        // Update earnings color
+        earningsElement.classList.remove('positive', 'negative', 'zero');
+        if (player.earnings > 0) {
+            earningsElement.classList.add('positive');
+        } else if (player.earnings < 0) {
+            earningsElement.classList.add('negative');
+        } else {
+            earningsElement.classList.add('zero');
+        }
+
+        return itemElement;
+    }
+
+    revertPlayerAction(player, action) {
+        // Revert the previous action
+        switch (action) {
+            case 'win':
+                player.wins--;
+                player.netScore -= 1;
+                break;
+            case 'loss':
+                player.losses--;
+                player.netScore += 1;
+                break;
+            case 'doubleWin':
+                player.wins -= 2;
+                player.netScore -= 2;
+                break;
+            case 'doubleLoss':
+                player.losses -= 2;
+                player.netScore += 2;
+                break;
+            case 'blackjack':
+                player.blackjacks--;
+                player.netScore -= 1.5;
+                break;
+            case 'tie':
+                // Tie doesn't change any scores, nothing to revert
+                break;
+        }
+
+        // Recalculate earnings
+        if (action !== 'tie') {
+            player.earnings = player.netScore * this.winValue;
+        }
+    }
+
+    getActionName(action) {
+        const actionNames = {
+            win: 'Vitória',
+            loss: 'Derrota',
+            doubleWin: 'Vitória Dupla',
+            doubleLoss: 'Derrota Dupla',
+            blackjack: 'Blackjack',
+            tie: 'Empate'
+        };
+        return actionNames[action] || action;
+    }
+
+    triggerBlackjackCelebration(playerCard) {
+        // Add the blackjack celebration class
+        playerCard.classList.add('blackjack-celebration');
+
+        // Create sparks container
+        const sparksContainer = document.createElement('div');
+        sparksContainer.className = 'rocket-sparks';
+
+        // Create individual sparks with optimized creation
+        const sparkEmojis = ['⭐', '✨', '💫', '🌟'];
+        const sparkFragment = document.createDocumentFragment();
+
+        for (let i = 0; i < 4; i++) { // Reduced from 6 to 4 for better performance
+            const spark = document.createElement('div');
+            spark.className = 'spark';
+            spark.textContent = sparkEmojis[i % sparkEmojis.length];
+
+            // Random positioning
+            spark.style.top = Math.random() * 70 + 15 + '%'; // Constrained range
+            spark.style.left = Math.random() * 70 + 15 + '%'; // Constrained range
+            spark.style.animationDelay = (Math.random() * 0.8) + 's'; // Shorter delays
+
+            sparkFragment.appendChild(spark);
+        }
+
+        sparksContainer.appendChild(sparkFragment);
+        playerCard.appendChild(sparksContainer);
+
+        // Remove sparks after animation with optimized cleanup
+        setTimeout(() => {
+            if (sparksContainer.parentNode) {
+                sparksContainer.parentNode.removeChild(sparksContainer);
+            }
+        }, 1200); // Reduced from 2000ms to match shorter animation
     }
 
     showMessage(message, type = 'info') {
@@ -537,7 +768,8 @@ class BlackjackTracker {
                 players: this.players,
                 winValue: this.winValue,
                 gameActive: this.gameActive,
-                playerIdCounter: this.playerIdCounter
+                playerIdCounter: this.playerIdCounter,
+                gameStartTime: this.gameStartTime ? this.gameStartTime.getTime() : null
             };
 
             try {
@@ -573,6 +805,7 @@ class BlackjackTracker {
                 this.winValue = gameState.winValue || 0.05;
                 this.gameActive = gameState.gameActive || false;
                 this.playerIdCounter = gameState.playerIdCounter || 0;
+                this.gameStartTime = gameState.gameStartTime ? new Date(gameState.gameStartTime) : null;
 
                 // Update UI based on loaded state
                 this.winValueInput.value = this.winValue.toFixed(2);
@@ -590,88 +823,6 @@ class BlackjackTracker {
         }
     }
 
-    triggerBlackjackCelebration(playerCard) {
-        // Add the blackjack celebration class
-        playerCard.classList.add('blackjack-celebration');
-
-        // Create sparks container
-        const sparksContainer = document.createElement('div');
-        sparksContainer.className = 'rocket-sparks';
-
-        // Create individual sparks with optimized creation
-        const sparkEmojis = ['⭐', '✨', '💫', '🌟'];
-        const sparkFragment = document.createDocumentFragment();
-
-        for (let i = 0; i < 4; i++) { // Reduced from 6 to 4 for better performance
-            const spark = document.createElement('div');
-            spark.className = 'spark';
-            spark.textContent = sparkEmojis[i % sparkEmojis.length];
-
-            // Random positioning
-            spark.style.top = Math.random() * 70 + 15 + '%'; // Constrained range
-            spark.style.left = Math.random() * 70 + 15 + '%'; // Constrained range
-            spark.style.animationDelay = (Math.random() * 0.8) + 's'; // Shorter delays
-
-            sparkFragment.appendChild(spark);
-        }
-
-        sparksContainer.appendChild(sparkFragment);
-        playerCard.appendChild(sparksContainer);
-
-        // Remove sparks after animation with optimized cleanup
-        setTimeout(() => {
-            if (sparksContainer.parentNode) {
-                sparksContainer.parentNode.removeChild(sparksContainer);
-            }
-        }, 1200); // Reduced from 2000ms to match shorter animation
-    }
-
-    revertPlayerAction(player, action) {
-        // Revert the previous action
-        switch (action) {
-            case 'win':
-                player.wins--;
-                player.netScore -= 1;
-                break;
-            case 'loss':
-                player.losses--;
-                player.netScore += 1;
-                break;
-            case 'doubleWin':
-                player.wins -= 2;
-                player.netScore -= 2;
-                break;
-            case 'doubleLoss':
-                player.losses -= 2;
-                player.netScore += 2;
-                break;
-            case 'blackjack':
-                player.blackjacks--;
-                player.netScore -= 1.5;
-                break;
-            case 'tie':
-                // Tie doesn't change any scores, nothing to revert
-                break;
-        }
-
-        // Recalculate earnings
-        if (action !== 'tie') {
-            player.earnings = player.netScore * this.winValue;
-        }
-    }
-
-    getActionName(action) {
-        const actionNames = {
-            win: 'Vitória',
-            loss: 'Derrota',
-            doubleWin: 'Vitória Dupla',
-            doubleLoss: 'Derrota Dupla',
-            blackjack: 'Blackjack',
-            tie: 'Empate'
-        };
-        return actionNames[action] || action;
-    }
-
     editPlayerName(playerId) {
         const player = this.players.find(p => p.id === playerId);
         if (!player) return;
@@ -681,7 +832,7 @@ class BlackjackTracker {
 
         const nameElement = playerCard.querySelector('.player-name');
         const editBtn = playerCard.querySelector('.edit-player-btn');
-        
+
         // Check if already in edit mode
         if (nameElement.querySelector('input')) {
             return;
@@ -689,14 +840,14 @@ class BlackjackTracker {
 
         // Store original text
         const originalName = player.name;
-        
+
         // Create input element
         const input = document.createElement('input');
         input.type = 'text';
         input.value = originalName;
         input.maxLength = 20;
         input.className = 'player-name-input';
-        
+
         // Style the input to match the name appearance
         Object.assign(input.style, {
             background: 'transparent',
@@ -714,7 +865,7 @@ class BlackjackTracker {
         // Replace name text with input
         nameElement.textContent = '';
         nameElement.appendChild(input);
-        
+
         // Focus and select text
         input.focus();
         input.select();
@@ -722,13 +873,13 @@ class BlackjackTracker {
         // Change edit button to confirm/cancel buttons
         const actionsContainer = editBtn.parentNode;
         const originalEditBtn = editBtn.cloneNode(true);
-        
+
         // Create confirm button
         const confirmBtn = document.createElement('button');
         confirmBtn.className = 'btn btn-success btn-small';
         confirmBtn.innerHTML = '<i class="fas fa-check"></i>';
         confirmBtn.style.marginRight = '4px';
-        
+
         // Create cancel button  
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn btn-secondary btn-small';
@@ -741,7 +892,7 @@ class BlackjackTracker {
         // Handle confirm
         const confirmEdit = () => {
             const newName = input.value.trim();
-            
+
             if (!newName) {
                 this.showMessage('Player name cannot be empty', 'error');
                 input.focus();
@@ -755,10 +906,10 @@ class BlackjackTracker {
             }
 
             // Check if name already exists (excluding current player)
-            const existingPlayer = this.players.find(p => 
+            const existingPlayer = this.players.find(p =>
                 p.id !== playerId && p.name.toLowerCase() === newName.toLowerCase()
             );
-            
+
             if (existingPlayer) {
                 this.showMessage('A player with this name already exists', 'error');
                 input.focus();
@@ -767,29 +918,33 @@ class BlackjackTracker {
 
             // Update player name
             player.name = newName;
-            
+
             // Restore UI
             nameElement.textContent = newName;
             actionsContainer.replaceChild(originalEditBtn, confirmBtn);
             actionsContainer.removeChild(cancelBtn);
-            
+
             // Re-bind edit button
             originalEditBtn.onclick = (e) => {
                 e.stopPropagation();
                 this.editPlayerName(player.id);
             };
-            
+
             this.saveToStorage();
             this.showMessage(`Player name updated to "${newName}"`, 'success');
         };
 
+        // Flag to track if editing was cancelled
+        let editingCancelled = false;
+
         // Handle cancel
         const cancelEdit = () => {
+            editingCancelled = true;
             // Restore original name
             nameElement.textContent = originalName;
             actionsContainer.replaceChild(originalEditBtn, confirmBtn);
             actionsContainer.removeChild(cancelBtn);
-            
+
             // Re-bind edit button
             originalEditBtn.onclick = (e) => {
                 e.stopPropagation();
@@ -802,9 +957,10 @@ class BlackjackTracker {
             e.stopPropagation();
             confirmEdit();
         };
-        
+
         cancelBtn.onclick = (e) => {
             e.stopPropagation();
+            e.preventDefault(); // Prevent any default behavior
             cancelEdit();
         };
 
@@ -818,16 +974,24 @@ class BlackjackTracker {
             }
         };
 
-        // Handle blur (click outside)
-        input.onblur = () => {
-            // Small delay to allow button clicks to register
+        // Handle blur (click outside) - only confirm if not cancelled
+        input.onblur = (e) => {
+            // Check if the blur was caused by clicking on confirm or cancel buttons
+            const relatedTarget = e.relatedTarget;
+            if (relatedTarget === confirmBtn || relatedTarget === cancelBtn) {
+                return; // Let the button handlers deal with this
+            }
+
+            // Small delay to allow any pending operations to complete
             setTimeout(() => {
-                if (document.activeElement !== confirmBtn && document.activeElement !== cancelBtn) {
+                if (!editingCancelled) {
                     confirmEdit();
                 }
-            }, 100);
+            }, 50); // Reduced delay
         };
     }
+
+    // ...existing code...
 }
 
 // Initialize the application when DOM is loaded
