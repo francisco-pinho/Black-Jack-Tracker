@@ -7,6 +7,7 @@ class BlackjackTracker {
 
         // Round tracking for visual feedback
         this.currentRoundPlayers = new Set(); // Track players who received a score this round
+        this.currentRoundScores = new Map(); // Track the last score given to each player this round
 
         this.initializeElements();
         this.bindEvents();
@@ -133,7 +134,7 @@ class BlackjackTracker {
         this.gameActive = true;
 
         // Update game info
-        this.currentWinValueSpan.textContent = `￦${this.winValue.toFixed(2)}`;
+        this.currentWinValueSpan.textContent = `💎${this.winValue.toFixed(2)}`;
 
         // Show game screen
         this.setupScreen.style.display = 'none';
@@ -176,12 +177,17 @@ class BlackjackTracker {
     }
 
     renderPlayers() {
-        this.playersGrid.innerHTML = '';
+        // Performance optimization: Use DocumentFragment for batch DOM updates
+        const fragment = document.createDocumentFragment();
 
         this.players.forEach(player => {
             const playerCard = this.createPlayerCard(player);
-            this.playersGrid.appendChild(playerCard);
+            fragment.appendChild(playerCard);
         });
+
+        // Clear and update in one operation
+        this.playersGrid.innerHTML = '';
+        this.playersGrid.appendChild(fragment);
     }
 
     createPlayerCard(player) {
@@ -194,17 +200,22 @@ class BlackjackTracker {
         // Update stats
         this.updatePlayerCardStats(card, player);
 
-        // Bind action buttons
+        // Bind action buttons with event delegation optimization
         const actionButtons = card.querySelectorAll('.action-btn');
         actionButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
+            // Store the handler to avoid creating new functions on each render
+            btn.onclick = (e) => {
+                e.stopPropagation(); // Prevent event bubbling
                 this.handlePlayerAction(player.id, btn.dataset.action);
-            });
+            };
         });
 
-        // Bind remove button
+        // Bind remove button with optimized event handling
         const removeBtn = card.querySelector('.remove-player-btn');
-        removeBtn.addEventListener('click', () => this.removePlayer(player.id));
+        removeBtn.onclick = (e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            this.removePlayer(player.id);
+        };
 
         return cardElement;
     }
@@ -216,7 +227,7 @@ class BlackjackTracker {
         card.querySelector('.net-score').textContent = player.netScore.toFixed(1);
 
         const earningsElement = card.querySelector('.earnings');
-        earningsElement.textContent = `￦${player.earnings.toFixed(2)}`;
+        earningsElement.textContent = `💎${player.earnings.toFixed(2)}`;
 
         // Update earnings color
         earningsElement.classList.remove('positive', 'negative', 'zero');
@@ -233,24 +244,36 @@ class BlackjackTracker {
     }
 
     updatePlayerRoundStatus(card, playerId) {
-        // Remove all round status classes
-        card.classList.remove('round-win', 'round-loss', 'round-tie', 'round-pending', 'round-classified', 'round-blackjack', 'blackjack-celebration');
+        // Optimized class manipulation - batch all changes
+        const classesToRemove = ['round-win', 'round-loss', 'round-tie', 'round-pending', 'round-classified', 'round-blackjack', 'blackjack-celebration'];
+
+        // Use single call to remove all classes
+        card.classList.remove(...classesToRemove);
 
         if (!this.currentRoundPlayers.has(playerId)) {
             // Player hasn't received a classification this round
             card.classList.add('round-pending');
-        } else {
-            // Player has been classified - the specific color is set by setPlayerRoundStatus
-            // We don't need to do anything here as the status is already set
         }
+        // Specific color is set by setPlayerRoundStatus when needed
     }
 
     handlePlayerAction(playerId, action) {
         const player = this.players.find(p => p.id === playerId);
         if (!player) return;
 
+        // Check if player already has a score this round - if so, revert the previous one
+        if (this.currentRoundScores.has(playerId)) {
+            const previousAction = this.currentRoundScores.get(playerId);
+            this.revertPlayerAction(player, previousAction);
+            this.showActionFeedback(player.name, `Substituindo ${this.getActionName(previousAction)} por ${this.getActionName(action)}`, 'warning');
+        } else {
+            // Show normal action feedback for first score
+            this.showActionFeedback(player.name, action);
+        }
+
         // Track that this player received a score this round
         this.currentRoundPlayers.add(playerId);
+        this.currentRoundScores.set(playerId, action);
 
         switch (action) {
             case 'win':
@@ -290,9 +313,6 @@ class BlackjackTracker {
         this.updateGameInfo();
         this.saveToStorage();
 
-        // Show action feedback
-        this.showActionFeedback(player.name, action);
-
         // Check if all players have been classified this round
         this.checkRoundComplete();
     }
@@ -301,8 +321,11 @@ class BlackjackTracker {
         const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
         if (!playerCard) return;
 
-        // Remove ALL round status classes including blackjack-celebration
-        playerCard.classList.remove('round-win', 'round-loss', 'round-tie', 'round-pending', 'round-classified', 'round-blackjack', 'blackjack-celebration');
+        // Optimized class manipulation - batch all changes
+        const classesToRemove = ['round-win', 'round-loss', 'round-tie', 'round-pending', 'round-classified', 'round-blackjack', 'blackjack-celebration'];
+
+        // Remove all status classes at once
+        playerCard.classList.remove(...classesToRemove);
 
         // Add the appropriate status class
         switch (status) {
@@ -311,8 +334,11 @@ class BlackjackTracker {
                 playerCard.classList.add('round-win');
                 break;
             case 'blackjack':
-                playerCard.classList.add('round-blackjack'); // Special class for blackjack
-                this.triggerBlackjackCelebration(playerCard);
+                playerCard.classList.add('round-blackjack');
+                // Use requestAnimationFrame for smooth animation
+                requestAnimationFrame(() => {
+                    this.triggerBlackjackCelebration(playerCard);
+                });
                 break;
             case 'loss':
             case 'doubleLoss':
@@ -324,7 +350,13 @@ class BlackjackTracker {
         }
     }
 
-    showActionFeedback(playerName, action) {
+    showActionFeedback(playerName, action, type = 'success') {
+        // Handle custom messages (like substitution messages)
+        if (typeof action === 'string' && !['win', 'loss', 'doubleWin', 'doubleLoss', 'blackjack', 'tie'].includes(action)) {
+            this.showMessage(action, type);
+            return;
+        }
+
         const messages = {
             win: `${playerName}: +1 Win`,
             loss: `${playerName}: +1 Loss`,
@@ -334,7 +366,7 @@ class BlackjackTracker {
             tie: `${playerName}: Tie (no change)`
         };
 
-        this.showMessage(messages[action], 'success');
+        this.showMessage(messages[action], type);
     }
 
     checkRoundComplete() {
@@ -345,16 +377,20 @@ class BlackjackTracker {
                 this.resetRoundStatus();
             }, 2000); // Wait 2 seconds before resetting
         }
-    }
-
-    resetRoundStatus() {
+    } resetRoundStatus() {
         // Clear the round tracking
         this.currentRoundPlayers.clear();
+        this.currentRoundScores.clear(); // Clear the scores map too
 
-        // Remove ALL round status classes from all player cards
+        // Optimized class removal - batch all changes
         const playerCards = document.querySelectorAll('.player-card');
-        playerCards.forEach(card => {
-            card.classList.remove('round-win', 'round-loss', 'round-tie', 'round-classified', 'round-pending', 'round-blackjack', 'blackjack-celebration');
+        const classesToRemove = ['round-win', 'round-loss', 'round-tie', 'round-classified', 'round-pending', 'round-blackjack', 'blackjack-celebration'];
+
+        // Use requestAnimationFrame for smooth visual updates
+        requestAnimationFrame(() => {
+            playerCards.forEach(card => {
+                card.classList.remove(...classesToRemove);
+            });
         });
 
         this.showMessage('Nova rodada iniciada', 'info');
@@ -382,7 +418,7 @@ class BlackjackTracker {
         this.totalPlayersSpan.textContent = this.players.length;
 
         const totalEarnings = this.players.reduce((sum, player) => sum + player.earnings, 0);
-        this.totalEarningsSpan.textContent = `￦${totalEarnings.toFixed(2)}`;
+        this.totalEarningsSpan.textContent = `💎${totalEarnings.toFixed(2)}`;
 
         // Update total earnings color
         this.totalEarningsSpan.classList.remove('positive', 'negative', 'zero');
@@ -488,27 +524,37 @@ class BlackjackTracker {
 
         this.isSaving = true;
 
-        await new Promise(resolve => {
-            requestIdleCallback(() => {
-                const gameState = {
-                    players: this.players,
-                    winValue: this.winValue,
-                    gameActive: this.gameActive,
-                    playerIdCounter: this.playerIdCounter
-                };
+        // Use requestIdleCallback for better performance
+        const saveOperation = () => {
+            const gameState = {
+                players: this.players,
+                winValue: this.winValue,
+                gameActive: this.gameActive,
+                playerIdCounter: this.playerIdCounter
+            };
 
+            try {
                 localStorage.setItem('blackjackTracker', JSON.stringify(gameState));
-                this.isSaving = false;
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                this.showMessage('Error saving game state', 'error');
+            }
 
-                // Check if another save is pending
-                if (this.pendingSave) {
-                    this.pendingSave = false;
-                    this.saveToStorage();
-                }
+            this.isSaving = false;
 
-                resolve();
-            });
-        });
+            // Check if another save is pending
+            if (this.pendingSave) {
+                this.pendingSave = false;
+                this.saveToStorage();
+            }
+        };
+
+        // Use requestIdleCallback if available, otherwise use setTimeout
+        if (window.requestIdleCallback) {
+            requestIdleCallback(saveOperation);
+        } else {
+            setTimeout(saveOperation, 0);
+        }
     }
 
     loadFromStorage() {
@@ -545,29 +591,78 @@ class BlackjackTracker {
         const sparksContainer = document.createElement('div');
         sparksContainer.className = 'rocket-sparks';
 
-        // Create individual sparks
+        // Create individual sparks with optimized creation
         const sparkEmojis = ['⭐', '✨', '💫', '🌟'];
-        for (let i = 0; i < 6; i++) {
+        const sparkFragment = document.createDocumentFragment();
+
+        for (let i = 0; i < 4; i++) { // Reduced from 6 to 4 for better performance
             const spark = document.createElement('div');
             spark.className = 'spark';
-            spark.textContent = sparkEmojis[Math.floor(Math.random() * sparkEmojis.length)];
+            spark.textContent = sparkEmojis[i % sparkEmojis.length];
 
             // Random positioning
-            spark.style.top = Math.random() * 80 + '%';
-            spark.style.left = Math.random() * 80 + '%';
-            spark.style.animationDelay = (Math.random() * 1.5) + 's';
+            spark.style.top = Math.random() * 70 + 15 + '%'; // Constrained range
+            spark.style.left = Math.random() * 70 + 15 + '%'; // Constrained range
+            spark.style.animationDelay = (Math.random() * 0.8) + 's'; // Shorter delays
 
-            sparksContainer.appendChild(spark);
+            sparkFragment.appendChild(spark);
         }
 
+        sparksContainer.appendChild(sparkFragment);
         playerCard.appendChild(sparksContainer);
 
-        // Remove only the sparks after animation completes, keep the yellow background
+        // Remove sparks after animation with optimized cleanup
         setTimeout(() => {
             if (sparksContainer.parentNode) {
                 sparksContainer.parentNode.removeChild(sparksContainer);
             }
-        }, 2000);
+        }, 1200); // Reduced from 2000ms to match shorter animation
+    }
+
+    revertPlayerAction(player, action) {
+        // Revert the previous action
+        switch (action) {
+            case 'win':
+                player.wins--;
+                player.netScore -= 1;
+                break;
+            case 'loss':
+                player.losses--;
+                player.netScore += 1;
+                break;
+            case 'doubleWin':
+                player.wins -= 2;
+                player.netScore -= 2;
+                break;
+            case 'doubleLoss':
+                player.losses -= 2;
+                player.netScore += 2;
+                break;
+            case 'blackjack':
+                player.blackjacks--;
+                player.netScore -= 1.5;
+                break;
+            case 'tie':
+                // Tie doesn't change any scores, nothing to revert
+                break;
+        }
+
+        // Recalculate earnings
+        if (action !== 'tie') {
+            player.earnings = player.netScore * this.winValue;
+        }
+    }
+
+    getActionName(action) {
+        const actionNames = {
+            win: 'Vitória',
+            loss: 'Derrota',
+            doubleWin: 'Vitória Dupla',
+            doubleLoss: 'Derrota Dupla',
+            blackjack: 'Blackjack',
+            tie: 'Empate'
+        };
+        return actionNames[action] || action;
     }
 }
 

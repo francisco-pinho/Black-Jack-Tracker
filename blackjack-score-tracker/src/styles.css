@@ -7,30 +7,62 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(180deg, #000000 0%, #2e0101 100%);
+    background: #0f0f0f;
+    /* Solid color instead of gradient for better performance */
     min-height: 100vh;
     color: #000000;
     line-height: 1.6;
+    /* Performance optimizations */
+    transform: translateZ(0);
+    /* Force GPU acceleration */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Hide all scrollbars completely */
+    overflow-x: hidden;
+    /* Hide horizontal scrollbar */
+    overflow-y: auto;
+    /* Allow vertical scrolling but hide the bar */
+}
+
+/* Hide scrollbars for WebKit browsers */
+body::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbars for Firefox */
+html {
+    scrollbar-width: none;
+}
+
+/* Ensure no horizontal overflow */
+* {
+    max-width: 100%;
 }
 
 .app-container {
-    max-width: 1400px;
+    max-width: 1600px;
+    /* Increased from 1400px to accommodate 4 cards better */
     margin: 0 auto;
     padding: 20px;
+    /* Prevent horizontal overflow */
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Header Styles */
 .app-header {
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
     border-radius: 15px;
     padding: 20px 30px;
     margin-bottom: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    /* Performance optimization - remove backdrop-filter */
+    will-change: transform;
 }
 
 .app-header h1 {
@@ -58,21 +90,30 @@ body {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* Faster transitions */
     display: inline-flex;
     align-items: center;
     gap: 8px;
     text-decoration: none;
     font-family: inherit;
+    will-change: transform;
+    /* Performance optimization */
+    backface-visibility: hidden;
+    /* Prevent flickering */
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    /* Reduced movement for smoother feel */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    /* Lighter shadow */
 }
 
 .btn:active {
     transform: translateY(0);
+    transition-duration: 0.1s;
+    /* Faster active state */
 }
 
 .btn-primary {
@@ -144,10 +185,10 @@ body {
 /* Screen Styles */
 .screen {
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
     border-radius: 15px;
     padding: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    /* Removed backdrop-filter for better performance */
 }
 
 /* Setup Screen Styles */
@@ -201,14 +242,18 @@ body {
     border: 2px solid #ddd;
     border-radius: 8px;
     font-size: 14px;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    /* Faster transitions */
     min-width: 200px;
+    will-change: border-color;
+    /* Performance optimization */
 }
 
 .input-group input:focus {
     outline: none;
     border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+    /* Smaller shadow */
 }
 
 .setup-players-list {
@@ -285,7 +330,9 @@ body {
 .players-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    /* Back to original 350px card size */
     gap: 20px;
+    /* Back to original gap */
     margin-top: 20px;
 }
 
@@ -294,14 +341,22 @@ body {
     background: white;
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* Lighter shadow */
     border: 2px solid #ecf0f1;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    /* Optimized transitions */
+    will-change: transform;
+    /* Performance optimization */
+    backface-visibility: hidden;
+    /* Prevent flickering */
 }
 
 .player-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    /* Reduced movement */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    /* Lighter shadow */
     border-color: #3498db;
 }
 
@@ -422,17 +477,24 @@ body {
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* Optimized transitions */
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     font-size: 13px;
+    will-change: transform;
+    /* Performance optimization */
+    backface-visibility: hidden;
+    /* Prevent flickering */
 }
 
 .action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    /* Reduced movement */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    /* Lighter shadow */
 }
 
 .btn-win {
@@ -481,14 +543,17 @@ body {
     background: #e67e22;
 }
 
-/* Round Status Colors - Simple and Clear */
+/* Round Status Colors - Optimized for Performance */
 .player-card.round-win {
     background: #d4edda;
-    /* Light green */
     border-color: #27ae60;
     color: #155724;
-    box-shadow: 0 4px 20px rgba(39, 174, 96, 0.3);
-    transform: scale(1.01);
+    box-shadow: 0 2px 12px rgba(39, 174, 96, 0.3);
+    /* Lighter shadow */
+    transform: scale(1.005);
+    /* Reduced scale for smoother animation */
+    transition: all 0.2s ease;
+    /* Faster transition */
 }
 
 .player-card.round-win .player-name,
@@ -500,11 +565,14 @@ body {
 
 .player-card.round-loss {
     background: #f8d7da;
-    /* Light red */
     border-color: #e74c3c;
     color: #721c24;
-    box-shadow: 0 4px 20px rgba(231, 76, 60, 0.3);
-    transform: scale(1.01);
+    box-shadow: 0 2px 12px rgba(231, 76, 60, 0.3);
+    /* Lighter shadow */
+    transform: scale(1.005);
+    /* Reduced scale */
+    transition: all 0.2s ease;
+    /* Faster transition */
 }
 
 .player-card.round-loss .player-name,
@@ -516,11 +584,14 @@ body {
 
 .player-card.round-tie {
     background: #fff3cd;
-    /* Light yellow/orange */
     border-color: #f39c12;
     color: #856404;
-    box-shadow: 0 4px 20px rgba(243, 156, 18, 0.3);
-    transform: scale(1.01);
+    box-shadow: 0 2px 12px rgba(243, 156, 18, 0.3);
+    /* Lighter shadow */
+    transform: scale(1.005);
+    /* Reduced scale */
+    transition: all 0.2s ease;
+    /* Faster transition */
 }
 
 .player-card.round-tie .player-name,
@@ -532,19 +603,23 @@ body {
 
 .player-card.round-pending {
     background: #f8f9fa;
-    /* Light gray */
     border-color: #bdc3c7;
     opacity: 0.9;
+    transition: all 0.2s ease;
+    /* Faster transition */
 }
 
-/* Permanent Blackjack Status - Yellow Background */
+/* Blackjack Status - Optimized */
 .player-card.round-blackjack {
     background: #fff3cd;
-    /* Same yellow as celebration but without gradient */
     border-color: #ffd700;
     color: #856404;
-    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
-    transform: scale(1.01);
+    box-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);
+    /* Lighter shadow */
+    transform: scale(1.005);
+    /* Reduced scale */
+    transition: all 0.2s ease;
+    /* Faster transition */
 }
 
 .player-card.round-blackjack .player-name,
@@ -554,21 +629,15 @@ body {
     font-weight: 600;
 }
 
-@keyframes gentle-pulse {
-
-    0%,
-    100% {
-        opacity: 0.9;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 1;
-        transform: scale(1.005);
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .players-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        /* Slightly smaller for medium screens */
+        gap: 18px;
     }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .app-container {
         padding: 10px;
@@ -590,6 +659,11 @@ body {
 
     .players-grid {
         grid-template-columns: 1fr;
+        /* Single column on mobile */
+        transform: translateZ(0);
+        /* GPU acceleration */
+        gap: 15px;
+        /* Slightly larger gap on mobile for better spacing */
     }
 
     .game-info {
@@ -637,58 +711,69 @@ body {
     }
 }
 
-/* Animations */
+/* Optimized Animations for Better Performance */
 @keyframes slideInUp {
     from {
         opacity: 0;
-        transform: translateY(30px) scale(0.95);
+        transform: translate3d(0, 20px, 0);
+        /* Use translate3d for GPU acceleration */
     }
 
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translate3d(0, 0, 0);
     }
 }
 
 @keyframes slideInFade {
     from {
         opacity: 0;
-        transform: translateX(-20px);
+        transform: translate3d(-15px, 0, 0);
+        /* Use translate3d for GPU acceleration */
     }
 
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
 }
 
 .player-card {
-    animation: slideInUp 0.4s ease-out;
+    animation: slideInUp 0.3s ease-out;
+    /* Faster animation */
+    animation-fill-mode: both;
+    /* Prevent flash of unstyled content */
 }
 
 .setup-player-item {
-    animation: slideInFade 0.3s ease-out;
+    animation: slideInFade 0.2s ease-out;
+    /* Faster animation */
+    animation-fill-mode: both;
 }
 
-/* Blackjack Celebration Animation */
+/* Optimized Blackjack Celebration Animation */
 @keyframes rocket-launch {
     0% {
-        transform: translateY(0) rotate(0deg) scale(1);
+        transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+        /* Use translate3d */
         opacity: 1;
     }
 
     30% {
-        transform: translateY(-80px) rotate(90deg) scale(1.2);
+        transform: translate3d(0, -60px, 0) rotate(90deg) scale(1.1);
+        /* Reduced movement */
         opacity: 0.9;
     }
 
     60% {
-        transform: translateY(-150px) rotate(180deg) scale(1);
+        transform: translate3d(0, -120px, 0) rotate(180deg) scale(1);
+        /* Reduced movement */
         opacity: 0.7;
     }
 
     100% {
-        transform: translateY(-250px) rotate(270deg) scale(0.5);
+        transform: translate3d(0, -180px, 0) rotate(270deg) scale(0.6);
+        /* Reduced movement */
         opacity: 0;
     }
 }
@@ -700,12 +785,14 @@ body {
     }
 
     50% {
-        transform: scale(1.2) rotate(180deg);
-        opacity: 0.7;
+        transform: scale(1) rotate(180deg);
+        /* Reduced scale */
+        opacity: 0.8;
     }
 
     100% {
-        transform: scale(0.5) rotate(360deg);
+        transform: scale(0.4) rotate(360deg);
+        /* Reduced scale */
         opacity: 0;
     }
 }
@@ -714,44 +801,40 @@ body {
 
     0%,
     100% {
-        transform: scale(1.01) rotate(0deg);
+        transform: scale(1.005) rotate(0deg);
+        /* Reduced scale */
     }
 
     25% {
-        transform: scale(1.03) rotate(1deg);
+        transform: scale(1.01) rotate(0.5deg);
+        /* Reduced rotation */
     }
 
     50% {
-        transform: scale(1.02) rotate(0deg);
+        transform: scale(1.007) rotate(0deg);
     }
 
     75% {
-        transform: scale(1.03) rotate(-1deg);
+        transform: scale(1.01) rotate(-0.5deg);
+        /* Reduced rotation */
     }
 }
 
 .player-card.blackjack-celebration {
     position: relative;
-    animation: card-celebration 1s ease-in-out;
-    background: linear-gradient(135deg, #fff3cd 0%, #ffd700 30%, #ffeb3b 70%, #fff3cd 100%);
+    animation: card-celebration 0.8s ease-in-out;
+    /* Shorter duration */
+    background: #fff3cd;
+    /* Solid color instead of gradient for better performance */
     border-color: #ffd700;
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 235, 59, 0.6);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    /* Reduced glow effect */
     overflow: visible;
+    will-change: transform;
+    /* Performance optimization */
 }
 
-.player-card.blackjack-celebration::before {
-    top: 60%;
-    left: 15%;
-    animation-delay: 0.3s;
-}
-
-.player-card.blackjack-celebration::after {
-    top: 40%;
-    right: 15%;
-    animation-delay: 0.7s;
-}
-
-/* Sparks/Stars effect */
+/* Optimized Sparks/Stars effect */
 .rocket-sparks {
     position: absolute;
     top: 0;
@@ -764,26 +847,67 @@ body {
 
 .spark {
     position: absolute;
-    font-size: 16px;
-    animation: rocket-spark 1.5s ease-out;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    /* Smaller size for better performance */
+    animation: rocket-spark 1.2s ease-out;
+    /* Shorter duration */
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.4);
+    /* Reduced glow */
+    will-change: transform, opacity;
+    /* Performance optimization */
 }
 
-/* Scrollbar Styles */
+/* Hide all scrollbars completely */
 ::-webkit-scrollbar {
-    width: 8px;
+    display: none;
+    /* Hide scrollbar for WebKit browsers */
+    width: 0px;
+    /* Make scrollbar width 0 */
+    background: transparent;
+    /* Make background transparent */
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
+    display: none;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #3498db;
-    border-radius: 4px;
+    display: none;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #2980b9;
+    display: none;
+}
+
+/* Performance optimizations for smooth scrolling */
+html {
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none;
+    /* Hide scrollbar for IE and Edge */
+}
+
+/* Optimize list scrolling performance */
+.setup-players-list {
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    /* Force GPU acceleration */
+    /* Hide scrollbars for this container too */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.setup-players-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* GPU acceleration for main grid */
+.players-grid {
+    transform: translateZ(0);
+    /* Force GPU acceleration */
+    overflow: hidden;
+    /* Prevent any overflow */
+    width: 100%;
+    box-sizing: border-box;
 }
