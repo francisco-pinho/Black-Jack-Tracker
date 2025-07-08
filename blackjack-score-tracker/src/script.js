@@ -1,4 +1,3 @@
-// Blackjack Score Tracker - Main Application Logic
 
 class BlackjackTracker {
     constructor() {
@@ -10,7 +9,17 @@ class BlackjackTracker {
         this.initializeElements();
         this.bindEvents();
         this.loadFromStorage();
+
+        this.initSaveWorker();
+        this.pendingSave = false;
     }
+
+    initSaveWorker() {
+        // Web Workers aren't ideal for localStorage, so we'll use async approach instead
+        this.saveQueue = [];
+        this.isSaving = false;
+    }
+
 
     initializeElements() {
         // Screen elements
@@ -390,14 +399,35 @@ class BlackjackTracker {
         }, 3000);
     }
 
-    saveToStorage() {
-        const gameState = {
-            players: this.players,
-            winValue: this.winValue,
-            gameActive: this.gameActive,
-            playerIdCounter: this.playerIdCounter
-        };
-        localStorage.setItem('blackjackTracker', JSON.stringify(gameState));
+    async saveToStorage() {
+        if (this.isSaving) {
+            this.pendingSave = true;
+            return;
+        }
+
+        this.isSaving = true;
+        
+        await new Promise(resolve => {
+            requestIdleCallback(() => {
+                const gameState = {
+                    players: this.players,
+                    winValue: this.winValue,
+                    gameActive: this.gameActive,
+                    playerIdCounter: this.playerIdCounter
+                };
+                
+                localStorage.setItem('blackjackTracker', JSON.stringify(gameState));
+                this.isSaving = false;
+                
+                // Check if another save is pending
+                if (this.pendingSave) {
+                    this.pendingSave = false;
+                    this.saveToStorage();
+                }
+                
+                resolve();
+            });
+        });
     }
 
     loadFromStorage() {

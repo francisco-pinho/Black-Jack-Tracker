@@ -33,6 +33,7 @@
         "node": ">=14.0.0"
     },
     "dependencies": {
-        "@vercel/speed-insights": "^1.2.0"
+        "@vercel/speed-insights": "^1.2.0",
+        "firebase": "^11.10.0"
     }
 }
